@@ -15,7 +15,7 @@ class Button:
     def __init__(self, switch:int, led:int, sound:str, color:str) -> None:
         self.switch = switch
         self.led = led
-        self.sound: Sound = Sound(soundFile)
+        self.sound: Sound = Sound(sound)
         self.color = color
 
         self.setupGPIO()
