@@ -12,7 +12,7 @@ pygame.init()
 GPIO.setmode(GPIO.LE_POTATO_LOOKUP)
 
 class Button:
-    def __init__(self, switch:int, led:int, soundFile:str, color:str) -> None:
+    def __init__(self, switch:int, led:int, sound:str, color:str) -> None:
         self.switch = switch
         self.led = led
         self.sound: Sound = Sound(soundFile)
