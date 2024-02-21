@@ -101,7 +101,7 @@ class Simon:
             button.respond()
 
     def checkInput(self, pressedButton, correctButton):
-        if pressedButton.switch != correctButton.button:
+        if pressedButton.switch != correctButton.switch:
             self.lose()
 
     def run(self):
