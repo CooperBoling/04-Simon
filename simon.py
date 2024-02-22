@@ -63,20 +63,22 @@ class Simon:
             print(*args)
 
     def blinkLEDS(self):
-        leds = []
-        for button in Simon.BUTTONS:
-            leds.append(button.led)
-        GPIO.output(leds, True)
-        sleep(0.5)
-        GPIO.output(leds, False)
-        sleep(0.5)
+        #leds = []
+        #for button in Simon.BUTTONS:
+            #leds.append(button.led)
+        #GPIO.output(leds, True)
+        #sleep(0.5)
+        #GPIO.output(leds, False)
+        #sleep(0.5)
 
         #if up top doesnt work
-        #for button in Simon.BUTTONS:
-            #button.turnOnLight()
-            #sleep(0.5)
-            #button.turnOffLight()
-            #sleep(0.5)
+        for button in Simon.BUTTONS:
+            button.turnOnLight()
+        sleep(0.5)
+        
+        for button in Simon.BUTTONS:
+            button.turnOffLight()
+        sleep(0.5)
         
     def addToSequence(self):
         randomButton = choice(Simon.BUTTONS)
