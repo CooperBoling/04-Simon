@@ -4,8 +4,7 @@ from random import choice
 import os
 import sys
 
-FPS = 100
-SCREEN_SIZE = (720, 540)
+
 
 
 class Button:
@@ -34,10 +33,10 @@ class Button:
 
         display.blit(self.current_image, (self.x, self.y))
 
-    def on(self):
+    def led_on(self):
         self.current_image = self.image_file_on
 
-    def off(self):
+    def led_off(self):
         self.current_image = self.image_file_off
 
     def respond(self, count):
@@ -56,18 +55,24 @@ class Button:
     def is_clicked(self, mouse_pos):
         return self.x <= mouse_pos[0] <= self.x + self.x_size and self.y <= mouse_pos[1] <= self.y + self.y_size
 
-
+TITLE = 'Simon Game!'
+NUMBER_OF_BLINKS = 4 #The number of time the leds blink when the payer loses
+INIT_STARTUP_FRAMEBUFFER = 200 #The number of frames the game runs before starting 
+FPS = 100 # The frames per second the game is run at
+SCREEN_SIZE = (720, 540)
 class Simon:
-    TITLE = 'Simon Game!'
-
+    
+    
     def __init__(self) -> None:
-        self.sequence: list[Button] = []
+        self.sequence: list[Button] = [] 
         self.sequence_index = 0
         self.running = True
         self.is_playback = True
         self.counter = 200
+        self.lost = False
+        self.blink_count = NUMBER_OF_BLINKS
         pygame.init()
-
+        
         self.buttons = [
             Button(x=100, y=200, x_size=100, y_size=100,
                    image_file_on=os.path.join('images', 'red_button_on.png'),
@@ -98,14 +103,26 @@ class Simon:
         self.add_to_sequence()
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         self.clock = pygame.time.Clock()
-        pygame.display.set_caption("Simon Game")
+        pygame.display.set_caption(Simon.Title)
 
     def add_to_sequence(self):
         random_button = choice(self.buttons)
         self.sequence.append(random_button)
 
     def lose(self):
-        pygame.quit()
+        if self.counter<=0:
+            self.blink_leds()
+            self.counter = 110
+            
+        if self.blink_count <= 0:
+            return False
+        return True
+            
+    
+    def blink_leds(self):
+        for button in self.buttons:
+            button.respond(100)
+        
         
     def wait_for_press(self, mouse_pos):
         for button in self.buttons:
@@ -126,7 +143,7 @@ class Simon:
     def check_input(self, pressed_button):
         correct_button = self.sequence[self.sequence_index]
         if pressed_button.color != correct_button.color:
-            self.lose()
+            self.lost = True
         else:
             if self.sequence_index + 1 < len(self.sequence):
                 self.sequence_index += 1
@@ -139,28 +156,35 @@ class Simon:
         self.counter = 100
         self.is_playback = True
         
-    def user_input(self):
+    def game_handler(self):
                 pos = pygame.mouse.get_pos()
                 pressed_button = None
+                
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.running = False
-                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        
+                    if event.type == pygame.MOUSEBUTTONDOWN and not self.is_playback:
                         pressed_button = self.wait_for_press(pos)
-
-                if pressed_button is not None:
-                    self.check_input(pressed_button=pressed_button)
+                if not self.lost:
+                    if self.is_playback:
+                        self.playback()
+                    elif pressed_button is not None:
+                        self.check_input(pressed_button=pressed_button)
+                else:
                     
+                    if self.lose():
+                        self.blink_count-=1
+                    else:
+                        pygame.quit()
+                        
     def run(self):
         while self.running:
             if self.counter > 0:
-                self.counter-=1
+                self.counter-=1 
             else:
-                if not self.is_playback:
-                    self.user_input()
-                else:
-                    self.playback()
-
+                self.game_handler()
+                
             self.screen.fill('gray')
             for button in self.buttons:
                 button.draw_button(self.screen)
